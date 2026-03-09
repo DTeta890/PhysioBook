@@ -1,1 +1,1 @@
-// walkins feature barrel export
+export { WalkInsPage } from './components/WalkInsPage'

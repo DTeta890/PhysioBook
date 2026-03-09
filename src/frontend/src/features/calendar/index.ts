@@ -1,1 +1,1 @@
-// calendar feature barrel export
+export { CalendarPage } from './components/CalendarPage'

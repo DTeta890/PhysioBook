@@ -3,13 +3,62 @@
     "name": "PhysioBook",
     "welcome": "Mire se erdhet ne PhysioBook"
   },
+  "nav": {
+    "calendar": "Kalendari",
+    "patients": "Pacientet",
+    "walkins": "Pa termin",
+    "booking": "Rezervim Online",
+    "analytics": "Analitika",
+    "settings": "Cilesimet"
+  },
+  "auth": {
+    "login": "Hyr",
+    "logout": "Dil",
+    "loginSubtitle": "Hyni ne llogarine e klinikes",
+    "email": "Email",
+    "password": "Fjalekalimi",
+    "emailRequired": "Email eshte i detyrueshem",
+    "emailInvalid": "Adrese email e pavlefshme",
+    "passwordRequired": "Fjalekalimi eshte i detyrueshem",
+    "passwordMin": "Fjalekalimi duhet te kete te pakten 6 karaktere"
+  },
   "common": {
     "save": "Ruaj",
     "cancel": "Anulo",
     "delete": "Fshi",
     "edit": "Ndrysho",
+    "add": "Shto",
     "search": "Kerko",
     "loading": "Duke ngarkuar...",
-    "error": "Ndodhi nje gabim"
+    "error": "Ndodhi nje gabim",
+    "noResults": "Nuk u gjeten rezultate",
+    "confirm": "Konfirmo",
+    "back": "Kthehu"
+  },
+  "calendar": {
+    "empty": "Nuk ka takime",
+    "emptyDescription": "Nuk ka takime te planifikuara. Klikoni nje slot bosh per te krijuar nje te re."
+  },
+  "patients": {
+    "empty": "Nuk ka paciente",
+    "emptyDescription": "Nuk ka paciente te regjistruar ende. Shtoni pacientin e pare per te filluar.",
+    "detail": "Detajet e Pacientit",
+    "detailEmpty": "Pacienti nuk u gjet"
+  },
+  "walkins": {
+    "empty": "Nuk ka pa termin",
+    "emptyDescription": "Radha e pa termineve eshte bosh. Regjistroni nje pacient per te filluar."
+  },
+  "booking": {
+    "empty": "Rezervim online",
+    "emptyDescription": "Faqja e rezervimit online do te jete e disponueshme ketu."
+  },
+  "analytics": {
+    "empty": "Nuk ka te dhena ende",
+    "emptyDescription": "Analitika do te shfaqet sapo te keni te dhena takimesh."
+  },
+  "settings": {
+    "empty": "Cilesimet",
+    "emptyDescription": "Cilesimet dhe preferencat e klinikes do te konfigurohen ketu."
   }
 }

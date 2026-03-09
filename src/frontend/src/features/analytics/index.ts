@@ -1,1 +1,1 @@
-// analytics feature barrel export
+export { AnalyticsPage } from './components/AnalyticsPage'

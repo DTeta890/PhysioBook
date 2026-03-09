@@ -3,13 +3,62 @@
     "name": "PhysioBook",
     "welcome": "Welcome to PhysioBook"
   },
+  "nav": {
+    "calendar": "Calendar",
+    "patients": "Patients",
+    "walkins": "Walk-ins",
+    "booking": "Online Booking",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "loginSubtitle": "Sign in to your clinic account",
+    "email": "Email",
+    "password": "Password",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 6 characters"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "add": "Add",
     "search": "Search",
     "loading": "Loading...",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "noResults": "No results found",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "calendar": {
+    "empty": "No appointments",
+    "emptyDescription": "No appointments scheduled. Click an empty slot to create one."
+  },
+  "patients": {
+    "empty": "No patients",
+    "emptyDescription": "No patients registered yet. Add your first patient to get started.",
+    "detail": "Patient Details",
+    "detailEmpty": "Patient not found"
+  },
+  "walkins": {
+    "empty": "No walk-ins",
+    "emptyDescription": "The walk-in queue is empty. Check in a patient to start."
+  },
+  "booking": {
+    "empty": "Online booking",
+    "emptyDescription": "Online booking page will be available here."
+  },
+  "analytics": {
+    "empty": "No data yet",
+    "emptyDescription": "Analytics will appear once you have appointment data."
+  },
+  "settings": {
+    "empty": "Settings",
+    "emptyDescription": "Clinic settings and preferences will be configured here."
   }
 }

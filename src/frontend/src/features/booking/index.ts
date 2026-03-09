@@ -1,1 +1,1 @@
-// booking feature barrel export
+export { BookingPage } from './components/BookingPage'
