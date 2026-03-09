@@ -13,12 +13,12 @@
 | ID | Task | Status | Dependencies | Worktree |
 |----|------|--------|--------------|----------|
 | T-00 | Project scaffolding & repo setup | ✅ | — | main |
-| T-01 | Docker Compose local dev environment | ⬜ | T-00 | feature/T-01-docker |
+| T-01 | Docker Compose local dev environment | ✅ | T-00 | feature/T-01-docker |
 | T-02 | PostgreSQL schema + RLS foundation | ⬜ | T-01 | feature/T-02-database |
-| T-03 | .NET 8 Clean Architecture solution setup | ⬜ | T-00 | feature/T-03-backend-scaffold |
+| T-03 | .NET 8 Clean Architecture solution setup | ✅ | T-00 | feature/T-03-backend-scaffold |
 | T-04 | Multi-tenant middleware + RLS integration | ⬜ | T-02, T-03 | feature/T-04-multitenancy |
 | T-05 | JWT auth system (register, login, refresh) | ⬜ | T-04 | feature/T-05-auth-backend |
-| T-06 | Vite React TS project + TailwindCSS + Router | ⬜ | T-00 | feature/T-06-frontend-scaffold |
+| T-06 | Vite React TS project + TailwindCSS + Router | ✅ | T-00 | feature/T-06-frontend-scaffold |
 | T-07 | Frontend auth (login page, token management) | ⬜ | T-05, T-06 | feature/T-07-auth-frontend |
 | T-08 | CI/CD pipeline (GitHub Actions + Docker build) | ⬜ | T-01, T-03, T-06 | feature/T-08-cicd |
 | T-09 | Tenant provisioning system | ⬜ | T-04 | feature/T-09-tenant-provision |
