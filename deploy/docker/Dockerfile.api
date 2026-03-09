@@ -1,38 +1,24 @@
-# Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+# Development Dockerfile — uses dotnet watch for hot reload
+FROM mcr.microsoft.com/dotnet/sdk:8.0
 
-# Copy solution and project files for restore
+WORKDIR /src/backend
+
+# Copy project files for restore
 COPY src/backend/PhysioBook.sln .
 COPY src/backend/src/PhysioBook.Api/PhysioBook.Api.csproj src/PhysioBook.Api/
 COPY src/backend/src/PhysioBook.Application/PhysioBook.Application.csproj src/PhysioBook.Application/
 COPY src/backend/src/PhysioBook.Domain/PhysioBook.Domain.csproj src/PhysioBook.Domain/
 COPY src/backend/src/PhysioBook.Infrastructure/PhysioBook.Infrastructure.csproj src/PhysioBook.Infrastructure/
+COPY src/backend/tests/PhysioBook.UnitTests/PhysioBook.UnitTests.csproj tests/PhysioBook.UnitTests/
+COPY src/backend/tests/PhysioBook.IntegrationTests/PhysioBook.IntegrationTests.csproj tests/PhysioBook.IntegrationTests/
 
 RUN dotnet restore
 
-# Copy remaining source and publish
-COPY src/backend/src/ .
-RUN dotnet publish src/PhysioBook.Api/PhysioBook.Api.csproj \
-    -c Release \
-    -o /app/publish \
-    --no-restore
+# Copy remaining source
+COPY src/backend/ .
 
-# Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
-WORKDIR /app
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
 
-RUN addgroup --system --gid 1001 appgroup && \
-    adduser --system --uid 1001 --ingroup appgroup appuser
-
-COPY --from=build /app/publish .
-
-USER appuser
-
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-ENTRYPOINT ["dotnet", "PhysioBook.Api.dll"]
+# Use dotnet watch for hot reload in development
+ENTRYPOINT ["dotnet", "watch", "run", "--project", "src/PhysioBook.Api/PhysioBook.Api.csproj", "--no-launch-profile"]

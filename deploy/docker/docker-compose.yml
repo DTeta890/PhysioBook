@@ -1,31 +1,40 @@
-version: "3.8"
-
 services:
   api:
     build:
       context: ../../
       dockerfile: deploy/docker/Dockerfile.api
     ports:
-      - "8080:8080"
+      - "5000:5000"
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=physiobook;Username=physiobook;Password=physiobook_dev
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__Port=5672
-      - RabbitMQ__Username=guest
-      - RabbitMQ__Password=guest
+      - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
+      - Redis__ConnectionString=redis:6379
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    volumes:
+      - ../../src/backend:/src/backend
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - physiobook
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 5s
-      start_period: 10s
+      start_period: 30s
       retries: 3
 
   frontend:
@@ -33,7 +42,10 @@ services:
       context: ../../
       dockerfile: deploy/docker/Dockerfile.frontend
     ports:
-      - "3000:80"
+      - "3000:3000"
+    volumes:
+      - ../../src/frontend:/app
+      - /app/node_modules
     depends_on:
       - api
     networks:
@@ -43,29 +55,43 @@ services:
     image: postgres:16-alpine
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: physiobook
-      POSTGRES_USER: physiobook
-      POSTGRES_PASSWORD: physiobook_dev
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - physiobook
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U physiobook -d physiobook"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-physiobook} -d ${POSTGRES_DB:-physiobook}"]
       interval: 10s
       timeout: 5s
       start_period: 10s
       retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - physiobook
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 5s
+      retries: 3
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
       - "5672:5672"
       - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+    env_file:
+      - .env
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -77,9 +103,33 @@ services:
       start_period: 20s
       retries: 5
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - .env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - physiobook
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
 volumes:
   postgres_data:
+  redis_data:
   rabbitmq_data:
+  minio_data:
 
 networks:
   physiobook:
