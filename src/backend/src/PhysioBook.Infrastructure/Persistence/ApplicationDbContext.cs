@@ -1,0 +1,72 @@
+using Microsoft.EntityFrameworkCore;
+using PhysioBook.Application.Common.Interfaces;
+using PhysioBook.Domain.Common;
+
+namespace PhysioBook.Infrastructure.Persistence;
+
+public class ApplicationDbContext : DbContext, IApplicationDbContext
+{
+    private readonly ICurrentTenantService _tenantService;
+    private readonly IDateTimeProvider _dateTimeProvider;
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ICurrentTenantService tenantService,
+        IDateTimeProvider dateTimeProvider)
+        : base(options)
+    {
+        _tenantService = tenantService;
+        _dateTimeProvider = dateTimeProvider;
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        // Global tenant filter on all entities inheriting BaseEntity
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasQueryFilter(
+                        EntityFilterExpression.CreateTenantFilter(entityType.ClrType, _tenantService));
+            }
+        }
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var now = _dateTimeProvider.Now;
+
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = now;
+                    entry.Entity.UpdatedAt = now;
+                    entry.Entity.TenantId = _tenantService.TenantId;
+                    if (entry.Entity.Id == Guid.Empty)
+                        entry.Entity.Id = Guid.NewGuid();
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.UpdatedAt = now;
+                    break;
+            }
+        }
+
+        // Set PostgreSQL session variable for RLS
+        if (_tenantService.TenantId != Guid.Empty)
+        {
+            var tenantId = _tenantService.TenantId.ToString();
+            await Database.ExecuteSqlAsync(
+                $"SET app.current_tenant = {tenantId}",
+                cancellationToken);
+        }
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+}
