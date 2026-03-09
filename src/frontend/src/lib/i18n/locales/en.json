@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "PhysioBook",
+    "welcome": "Welcome to PhysioBook"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  }
+}

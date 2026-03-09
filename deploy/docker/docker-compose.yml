@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=physiobook;Username=physiobook;Password=physiobook_dev
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - physiobook
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - physiobook
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: physiobook
+      POSTGRES_USER: physiobook
+      POSTGRES_PASSWORD: physiobook_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - physiobook
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U physiobook -d physiobook"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - physiobook
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  physiobook:
+    driver: bridge

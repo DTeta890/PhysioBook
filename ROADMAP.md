@@ -12,7 +12,7 @@
 
 | ID | Task | Status | Dependencies | Worktree |
 |----|------|--------|--------------|----------|
-| T-00 | Project scaffolding & repo setup | ⬜ | — | main |
+| T-00 | Project scaffolding & repo setup | ✅ | — | main |
 | T-01 | Docker Compose local dev environment | ⬜ | T-00 | feature/T-01-docker |
 | T-02 | PostgreSQL schema + RLS foundation | ⬜ | T-01 | feature/T-02-database |
 | T-03 | .NET 8 Clean Architecture solution setup | ⬜ | T-00 | feature/T-03-backend-scaffold |

@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "PhysioBook",
+    "welcome": "Mire se erdhet ne PhysioBook"
+  },
+  "common": {
+    "save": "Ruaj",
+    "cancel": "Anulo",
+    "delete": "Fshi",
+    "edit": "Ndrysho",
+    "search": "Kerko",
+    "loading": "Duke ngarkuar...",
+    "error": "Ndodhi nje gabim"
+  }
+}
