@@ -1,10 +1,9 @@
-# Development Dockerfile — uses dotnet watch for hot reload
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+# ---- Build stage ----
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-WORKDIR /src/backend
-
-# Copy project files for restore
-COPY src/backend/PhysioBook.sln .
+# Copy solution and project files for restore (cache layer)
+COPY src/backend/PhysioBook.sln ./
 COPY src/backend/src/PhysioBook.Api/PhysioBook.Api.csproj src/PhysioBook.Api/
 COPY src/backend/src/PhysioBook.Application/PhysioBook.Application.csproj src/PhysioBook.Application/
 COPY src/backend/src/PhysioBook.Domain/PhysioBook.Domain.csproj src/PhysioBook.Domain/
@@ -14,11 +13,31 @@ COPY src/backend/tests/PhysioBook.IntegrationTests/PhysioBook.IntegrationTests.c
 
 RUN dotnet restore
 
-# Copy remaining source
+# Copy remaining source and publish
 COPY src/backend/ .
+RUN dotnet publish src/PhysioBook.Api/PhysioBook.Api.csproj \
+    --configuration Release \
+    --no-restore \
+    --output /app/publish
+
+# ---- Runtime stage ----
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=build /app/publish .
+
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
 
-# Use dotnet watch for hot reload in development
-ENTRYPOINT ["dotnet", "watch", "run", "--project", "src/PhysioBook.Api/PhysioBook.Api.csproj", "--no-launch-profile"]
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+ENTRYPOINT ["dotnet", "PhysioBook.Api.dll"]
