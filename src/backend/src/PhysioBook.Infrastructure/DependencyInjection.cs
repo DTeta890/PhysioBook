@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PhysioBook.Application.Common.Interfaces;
+using PhysioBook.Infrastructure.Auth;
 using PhysioBook.Infrastructure.Persistence;
 using PhysioBook.Infrastructure.Services;
 
@@ -31,6 +32,11 @@ public static class DependencyInjection
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        // Auth services
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<IPasswordService, PasswordService>();
 
         services.AddHttpContextAccessor();
 

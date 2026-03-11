@@ -1,3 +1,6 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using PhysioBook.Api.Middleware;
 using PhysioBook.Application;
 using PhysioBook.Infrastructure;
@@ -14,6 +17,33 @@ builder.Services.AddHealthChecks();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// JWT Authentication
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "dev-secret-key-change-in-production-min-32-chars!!";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "physiobook-api";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "physiobook-client";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+    };
+});
+
+builder.Services.AddAuthorization();
+
 // CORS for frontend dev server
 builder.Services.AddCors(options =>
 {
@@ -25,10 +55,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
-// TODO: Configure JWT authentication
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddJwtBearer(options => { ... });
 
 // TODO: Register SignalR
 // builder.Services.AddSignalR();
@@ -46,11 +72,9 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
 
+app.UseAuthentication();
 app.UseMiddleware<TenantMiddleware>();
-
-// TODO: Add authentication & authorization middleware
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

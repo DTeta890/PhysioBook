@@ -47,6 +47,14 @@ public class ExceptionHandlingMiddleware
                 HttpStatusCode.Forbidden,
                 new List<string> { forbiddenEx.Message }),
 
+            UnauthorizedException unauthorizedEx => (
+                HttpStatusCode.Unauthorized,
+                new List<string> { unauthorizedEx.Message }),
+
+            ConflictException conflictEx => (
+                HttpStatusCode.Conflict,
+                new List<string> { conflictEx.Message }),
+
             _ => (
                 HttpStatusCode.InternalServerError,
                 new List<string> { "An unexpected error occurred." })

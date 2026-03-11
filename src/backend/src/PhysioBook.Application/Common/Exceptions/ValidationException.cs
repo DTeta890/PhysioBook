@@ -19,4 +19,10 @@ public class ValidationException : Exception
             .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
             .ToDictionary(g => g.Key, g => g.ToArray());
     }
+
+    public ValidationException(IDictionary<string, string[]> errors)
+        : base("One or more validation failures have occurred.")
+    {
+        Errors = errors;
+    }
 }
