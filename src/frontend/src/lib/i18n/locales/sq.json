@@ -8,6 +8,7 @@
     "patients": "Pacientet",
     "walkins": "Pa termin",
     "booking": "Rezervim Online",
+    "therapists": "Terapistet",
     "analytics": "Analitika",
     "settings": "Cilesimet"
   },
@@ -56,6 +57,23 @@
   "analytics": {
     "empty": "Nuk ka te dhena ende",
     "emptyDescription": "Analitika do te shfaqet sapo te keni te dhena takimesh."
+  },
+  "therapists": {
+    "title": "Terapistet",
+    "add": "Shto Terapist",
+    "edit": "Ndrysho Terapistin",
+    "empty": "Nuk ka terapiste",
+    "emptyDescription": "Nuk ka terapiste te regjistruar ende. Shtoni terapistin e pare per te filluar.",
+    "email": "Email",
+    "firstName": "Emri",
+    "lastName": "Mbiemri",
+    "phone": "Telefoni",
+    "specialization": "Specializimi",
+    "color": "Ngjyra e Kalendarit",
+    "password": "Fjalekalimi",
+    "active": "Aktiv",
+    "inactive": "Joaktiv",
+    "deleteConfirm": "Jeni te sigurt qe doni te c'aktivizoni kete terapist?"
   },
   "settings": {
     "empty": "Cilesimet",

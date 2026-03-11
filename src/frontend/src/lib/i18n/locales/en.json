@@ -8,6 +8,7 @@
     "patients": "Patients",
     "walkins": "Walk-ins",
     "booking": "Online Booking",
+    "therapists": "Therapists",
     "analytics": "Analytics",
     "settings": "Settings"
   },
@@ -56,6 +57,23 @@
   "analytics": {
     "empty": "No data yet",
     "emptyDescription": "Analytics will appear once you have appointment data."
+  },
+  "therapists": {
+    "title": "Therapists",
+    "add": "Add Therapist",
+    "edit": "Edit Therapist",
+    "empty": "No therapists",
+    "emptyDescription": "No therapists registered yet. Add your first therapist to get started.",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone",
+    "specialization": "Specialization",
+    "color": "Calendar Color",
+    "password": "Password",
+    "active": "Active",
+    "inactive": "Inactive",
+    "deleteConfirm": "Are you sure you want to deactivate this therapist?"
   },
   "settings": {
     "empty": "Settings",
