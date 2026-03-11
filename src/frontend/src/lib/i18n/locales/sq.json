@@ -39,7 +39,18 @@
   },
   "calendar": {
     "empty": "Nuk ka takime",
-    "emptyDescription": "Nuk ka takime te planifikuara. Klikoni nje slot bosh per te krijuar nje te re."
+    "emptyDescription": "Nuk ka takime te planifikuara. Klikoni nje slot bosh per te krijuar nje te re.",
+    "today": "Sot",
+    "weekView": "Java",
+    "dayView": "Dita",
+    "monthView": "Muaji",
+    "noTherapists": "Nuk u gjeten terapiste aktive",
+    "monday": "Hen",
+    "tuesday": "Mar",
+    "wednesday": "Mer",
+    "thursday": "Enj",
+    "friday": "Pre",
+    "saturday": "Sht"
   },
   "patients": {
     "empty": "Nuk ka paciente",

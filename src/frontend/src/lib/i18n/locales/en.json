@@ -39,7 +39,18 @@
   },
   "calendar": {
     "empty": "No appointments",
-    "emptyDescription": "No appointments scheduled. Click an empty slot to create one."
+    "emptyDescription": "No appointments scheduled. Click an empty slot to create one.",
+    "today": "Today",
+    "weekView": "Week",
+    "dayView": "Day",
+    "monthView": "Month",
+    "noTherapists": "No active therapists found",
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat"
   },
   "patients": {
     "empty": "No patients",
