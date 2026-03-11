@@ -27,8 +27,8 @@
 
 | ID | Task | Status | Dependencies | Worktree |
 |----|------|--------|--------------|----------|
-| T-10 | Therapist CRUD (backend + frontend) | ⬜ | T-07 | feature/T-10-therapists |
-| T-11 | Treatment types CRUD (backend + frontend) | ⬜ | T-07 | feature/T-11-treatment-types |
+| T-10 | Therapist CRUD (backend + frontend) | ✅ | T-07 | feature/T-10-therapists |
+| T-11 | Treatment types CRUD (backend + frontend) | ✅ | T-07 | feature/T-11-treatment-types |
 | T-12 | Appointment domain model + API | ⬜ | T-10, T-11 | feature/T-12-appointments-api |
 | T-13 | Calendar UI — weekly view with therapist columns | ⬜ | T-06 | feature/T-13-calendar-ui |
 | T-14 | Drag-and-drop scheduling with @dnd-kit | ⬜ | T-12, T-13 | feature/T-14-dnd-calendar |
