@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PhysioBook.Application\PhysioBook.Application.csproj" />
     <ProjectReference Include="..\..\src\PhysioBook.Domain\PhysioBook.Domain.csproj" />
+    <ProjectReference Include="..\..\src\PhysioBook.Infrastructure\PhysioBook.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

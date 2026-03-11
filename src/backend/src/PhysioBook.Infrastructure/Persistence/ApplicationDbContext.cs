@@ -63,14 +63,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             }
         }
 
-        // Set PostgreSQL session variable for RLS
-        if (_tenantService.TenantId != Guid.Empty)
-        {
-            var tenantId = _tenantService.TenantId.ToString();
-            await Database.ExecuteSqlAsync(
-                $"SET app.current_tenant = {tenantId}",
-                cancellationToken);
-        }
+        // RLS session variable is set by TenantConnectionInterceptor at connection level
 
         return await base.SaveChangesAsync(cancellationToken);
     }

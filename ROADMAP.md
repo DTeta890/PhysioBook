@@ -16,7 +16,7 @@
 | T-01 | Docker Compose local dev environment | ✅ | T-00 | feature/T-01-docker |
 | T-02 | PostgreSQL schema + RLS foundation | ✅ | T-01 | feature/T-02-database |
 | T-03 | .NET 8 Clean Architecture solution setup | ✅ | T-00 | feature/T-03-backend-scaffold |
-| T-04 | Multi-tenant middleware + RLS integration | ⬜ | T-02, T-03 | feature/T-04-multitenancy |
+| T-04 | Multi-tenant middleware + RLS integration | ✅ | T-02, T-03 | feature/T-04-multitenancy |
 | T-05 | JWT auth system (register, login, refresh) | ⬜ | T-04 | feature/T-05-auth-backend |
 | T-06 | Vite React TS project + TailwindCSS + Router | ✅ | T-00 | feature/T-06-frontend-scaffold |
 | T-07 | Frontend auth (login page, token management) | ⬜ | T-05, T-06 | feature/T-07-auth-frontend |
