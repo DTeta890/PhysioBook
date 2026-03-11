@@ -35,8 +35,8 @@
 | T-15 | Appointment quick-create (click empty slot) | ✅ | T-14 | feature/T-15-quick-create |
 | T-16 | Conflict detection (visual + API validation) | ✅ | T-14 | feature/T-16-conflicts |
 | T-17 | Recurring appointments (rules + generation) | ✅ | T-12 | feature/T-17-recurring |
-| T-18 | SignalR real-time calendar sync | ⬜ | T-14 | feature/T-18-realtime |
-| T-19 | Calendar daily + monthly views | ⬜ | T-14 | feature/T-19-calendar-views |
+| T-18 | SignalR real-time calendar sync | ✅ | T-14 | feature/T-18-realtime |
+| T-19 | Calendar daily + monthly views | ✅ | T-14 | feature/T-19-calendar-views |
 
 ## Phase 2: Patient Management & Walk-Ins (Weeks 11–14)
 

@@ -25,10 +25,17 @@ public sealed class UpdateAppointmentStatusCommandHandler : IRequestHandler<Upda
     };
 
     private readonly IApplicationDbContext _context;
+    private readonly ICalendarNotificationService _notificationService;
+    private readonly ICurrentTenantService _tenantService;
 
-    public UpdateAppointmentStatusCommandHandler(IApplicationDbContext context)
+    public UpdateAppointmentStatusCommandHandler(
+        IApplicationDbContext context,
+        ICalendarNotificationService notificationService,
+        ICurrentTenantService tenantService)
     {
         _context = context;
+        _notificationService = notificationService;
+        _tenantService = tenantService;
     }
 
     public async Task<AppointmentDto> Handle(UpdateAppointmentStatusCommand request, CancellationToken cancellationToken)
@@ -59,7 +66,7 @@ public sealed class UpdateAppointmentStatusCommandHandler : IRequestHandler<Upda
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new AppointmentDto(
+        var dto = new AppointmentDto(
             entity.Id,
             entity.TherapistId,
             entity.Therapist.FullName,
@@ -77,5 +84,9 @@ public sealed class UpdateAppointmentStatusCommandHandler : IRequestHandler<Upda
             entity.Color,
             entity.RecurringRuleId,
             entity.CreatedAt);
+
+        await _notificationService.NotifyAppointmentUpdated(_tenantService.TenantId, dto, cancellationToken);
+
+        return dto;
     }
 }

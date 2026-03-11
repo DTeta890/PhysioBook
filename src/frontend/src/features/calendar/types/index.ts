@@ -20,7 +20,7 @@ export interface CalendarConfig {
   pixelsPerSlot: number
 }
 
-export type CalendarView = 'day' | 'week'
+export type CalendarView = 'day' | 'week' | 'month'
 
 export interface Therapist {
   id: string

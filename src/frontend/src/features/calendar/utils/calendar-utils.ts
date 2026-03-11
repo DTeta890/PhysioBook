@@ -1,4 +1,14 @@
-import { format, addDays, startOfWeek, parseISO, addMinutes } from 'date-fns'
+import {
+  format,
+  addDays,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  parseISO,
+  addMinutes,
+} from 'date-fns'
 import type { Appointment, CalendarConfig } from '../types'
 
 export const DEFAULT_CONFIG: CalendarConfig = {
@@ -156,4 +166,24 @@ export function checkConflict(
         apt.status !== 'cancelled',
     )
     .some((apt) => hasOverlap(startTime, endTime, apt.startTime, apt.endTime))
+}
+
+/**
+ * Returns all days to display in a month grid, including padding days
+ * from the previous and next months to fill complete weeks (Monday-start).
+ */
+export function getMonthDays(date: Date): Date[] {
+  const monthStart = startOfMonth(date)
+  const monthEnd = endOfMonth(date)
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  return eachDayOfInterval({ start: calendarStart, end: calendarEnd })
+}
+
+/**
+ * Filter appointments that fall on a specific day.
+ */
+export function getAppointmentsForDay(appointments: Appointment[], date: Date): Appointment[] {
+  const dayStr = format(date, 'yyyy-MM-dd')
+  return appointments.filter((apt) => apt.startTime.startsWith(dayStr))
 }

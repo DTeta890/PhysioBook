@@ -54,7 +54,14 @@
     "color": "Color",
     "appointmentCreated": "Appointment created",
     "patientNameRequired": "Patient name is required",
-    "treatmentTypeRequired": "Treatment type is required"
+    "treatmentTypeRequired": "Treatment type is required",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "moreAppointments": "+{{count}} more",
+    "noAppointments": "No appointments",
+    "realTimeConnected": "Real-time sync active",
+    "realTimeDisconnected": "Real-time sync disconnected"
   },
   "patients": {
     "empty": "No patients",

@@ -54,7 +54,14 @@
     "color": "Ngjyra",
     "appointmentCreated": "Takimi u krijua",
     "patientNameRequired": "Emri i pacientit kerkohet",
-    "treatmentTypeRequired": "Lloji i trajtimit kerkohet"
+    "treatmentTypeRequired": "Lloji i trajtimit kerkohet",
+    "day": "Dite",
+    "week": "Jave",
+    "month": "Muaj",
+    "moreAppointments": "+{{count}} te tjera",
+    "noAppointments": "Asnje takim",
+    "realTimeConnected": "Sinkronizimi ne kohe reale aktiv",
+    "realTimeDisconnected": "Sinkronizimi ne kohe reale u shkëput"
   },
   "patients": {
     "empty": "Nuk ka paciente",

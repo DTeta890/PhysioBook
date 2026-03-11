@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { addDays, subDays } from 'date-fns'
+import { addDays, subDays, addMonths, subMonths } from 'date-fns'
 import type { CalendarView } from '../types'
 
 interface CalendarState {
@@ -31,13 +31,21 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
 
   goForward: () => {
     const { currentDate, view } = get()
-    const days = view === 'week' ? 7 : 1
-    set({ currentDate: addDays(currentDate, days) })
+    if (view === 'month') {
+      set({ currentDate: addMonths(currentDate, 1) })
+    } else {
+      const days = view === 'week' ? 7 : 1
+      set({ currentDate: addDays(currentDate, days) })
+    }
   },
 
   goBack: () => {
     const { currentDate, view } = get()
-    const days = view === 'week' ? 7 : 1
-    set({ currentDate: subDays(currentDate, days) })
+    if (view === 'month') {
+      set({ currentDate: subMonths(currentDate, 1) })
+    } else {
+      const days = view === 'week' ? 7 : 1
+      set({ currentDate: subDays(currentDate, days) })
+    }
   },
 }))

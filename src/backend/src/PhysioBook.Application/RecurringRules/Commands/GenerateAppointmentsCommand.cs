@@ -15,10 +15,17 @@ public sealed record GenerateAppointmentsCommand(
 public sealed class GenerateAppointmentsCommandHandler : IRequestHandler<GenerateAppointmentsCommand, List<AppointmentDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICalendarNotificationService _notificationService;
+    private readonly ICurrentTenantService _tenantService;
 
-    public GenerateAppointmentsCommandHandler(IApplicationDbContext context)
+    public GenerateAppointmentsCommandHandler(
+        IApplicationDbContext context,
+        ICalendarNotificationService notificationService,
+        ICurrentTenantService tenantService)
     {
         _context = context;
+        _notificationService = notificationService;
+        _tenantService = tenantService;
     }
 
     public async Task<List<AppointmentDto>> Handle(GenerateAppointmentsCommand request, CancellationToken cancellationToken)
@@ -192,6 +199,7 @@ public sealed class GenerateAppointmentsCommandHandler : IRequestHandler<Generat
         if (createdAppointments.Count > 0)
         {
             await _context.SaveChangesAsync(cancellationToken);
+            await _notificationService.NotifyAppointmentsGenerated(_tenantService.TenantId, createdAppointments, cancellationToken);
         }
 
         return createdAppointments;

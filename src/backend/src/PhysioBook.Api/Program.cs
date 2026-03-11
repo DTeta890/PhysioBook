@@ -1,8 +1,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using PhysioBook.Api.Hubs;
 using PhysioBook.Api.Middleware;
+using PhysioBook.Api.Services;
 using PhysioBook.Application;
+using PhysioBook.Application.Common.Interfaces;
 using PhysioBook.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +43,21 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero,
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        },
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -56,8 +74,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// TODO: Register SignalR
-// builder.Services.AddSignalR();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<ICalendarNotificationService, CalendarNotificationService>();
 
 var app = builder.Build();
 
@@ -79,7 +97,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// TODO: Map SignalR hubs
-// app.MapHub<CalendarHub>("/hubs/calendar");
+app.MapHub<CalendarHub>("/hubs/calendar");
 
 app.Run();
