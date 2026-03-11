@@ -18,6 +18,7 @@ public class TenantMiddleware
         "/api/v1/auth/login",
         "/api/v1/auth/register",
         "/api/v1/booking",
+        "/api/v1/tenants",
     ];
 
     public TenantMiddleware(RequestDelegate next, ILogger<TenantMiddleware> logger)

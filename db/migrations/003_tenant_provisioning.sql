@@ -1,0 +1,8 @@
+-- T-09: Tenant Provisioning System
+-- No schema changes needed. The tenants table already exists from migration 001_initial_schema.sql.
+-- Tenant provisioning (create, read, update, list) is handled via the Application layer
+-- using the existing tenants table and users table.
+--
+-- The Tenant entity does not use Row-Level Security because it does not have a tenant_id column
+-- (it IS the tenant). The admin user created during provisioning is scoped to the new tenant
+-- via the users.tenant_id foreign key.
