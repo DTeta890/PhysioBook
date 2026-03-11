@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PhysioBook.Application.Common.Interfaces;
 using PhysioBook.Domain.Common;
+using PhysioBook.Domain.Entities;
 
 namespace PhysioBook.Infrastructure.Persistence;
 
@@ -19,12 +20,16 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         _dateTimeProvider = dateTimeProvider;
     }
 
+    public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-        // Global tenant filter on all entities inheriting BaseEntity
+        // Global tenant filter on all entities inheriting BaseEntity (which have TenantId)
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
