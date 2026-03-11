@@ -10,7 +10,7 @@ import {
   checkConflict,
   DEFAULT_CONFIG,
 } from '../utils/calendar-utils'
-import type { Appointment, Therapist, DraggableAppointmentData } from '../types'
+import type { Appointment, Therapist, DraggableAppointmentData, TimeSlotData } from '../types'
 
 interface CalendarDayColumnProps {
   therapist: Therapist
@@ -23,6 +23,7 @@ interface CalendarDayColumnProps {
   onResizeMove: (deltaY: number) => void
   onResizeEnd: () => void
   resizingAppointmentId: string | null
+  onSlotClick?: (data: TimeSlotData) => void
 }
 
 export function CalendarDayColumn({
@@ -36,6 +37,7 @@ export function CalendarDayColumn({
   onResizeMove,
   onResizeEnd,
   resizingAppointmentId,
+  onSlotClick,
 }: CalendarDayColumnProps) {
   const config = DEFAULT_CONFIG
   const timeSlots = getTimeSlots(config)
@@ -93,6 +95,7 @@ export function CalendarDayColumn({
               isHourStart={isHourStart}
               hasConflict={slotHasConflict}
               isActiveTarget={activeAppointmentData !== null}
+              onSlotClick={onSlotClick}
             />
           )
         })}

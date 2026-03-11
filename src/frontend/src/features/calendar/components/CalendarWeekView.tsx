@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/utils/cn'
 import { CalendarDayColumn } from './CalendarDayColumn'
 import { CalendarDragOverlay } from './CalendarDragOverlay'
+import { AppointmentFormModal } from './AppointmentFormModal'
 import {
   getTimeSlots,
   getGridHeight,
@@ -52,6 +53,7 @@ export function CalendarWeekView({
   const [activeItem, setActiveItem] = useState<Active | null>(null)
   const [activeAppointmentData, setActiveAppointmentData] =
     useState<DraggableAppointmentData | null>(null)
+  const [slotToCreate, setSlotToCreate] = useState<TimeSlotData | null>(null)
 
   // Resize state
   const [resizingAppointmentId, setResizingAppointmentId] = useState<string | null>(null)
@@ -309,6 +311,7 @@ export function CalendarWeekView({
                           onResizeMove={handleResizeMove}
                           onResizeEnd={handleResizeEnd}
                           resizingAppointmentId={resizingAppointmentId}
+                          onSlotClick={setSlotToCreate}
                         />
                       )
                     })}
@@ -369,6 +372,7 @@ export function CalendarWeekView({
                         onResizeMove={handleResizeMove}
                         onResizeEnd={handleResizeEnd}
                         resizingAppointmentId={resizingAppointmentId}
+                        onSlotClick={setSlotToCreate}
                       />
                     )
                   })}
@@ -381,6 +385,15 @@ export function CalendarWeekView({
 
       {/* Drag overlay */}
       <CalendarDragOverlay activeItem={activeItem} appointments={appointments} />
+
+      {/* Quick-create appointment modal */}
+      {slotToCreate && (
+        <AppointmentFormModal
+          slotData={slotToCreate}
+          onClose={() => setSlotToCreate(null)}
+          onSuccess={() => setSlotToCreate(null)}
+        />
+      )}
     </DndContext>
   )
 }

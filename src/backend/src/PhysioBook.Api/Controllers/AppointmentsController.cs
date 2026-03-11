@@ -5,6 +5,8 @@ using PhysioBook.Application.Appointments.DTOs;
 using PhysioBook.Application.Appointments.Queries;
 using PhysioBook.Application.Common;
 
+
+
 namespace PhysioBook.Api.Controllers;
 
 [Authorize]
@@ -37,6 +39,26 @@ public class AppointmentsController : BaseApiController
         [FromQuery] Guid? therapistId = null)
     {
         var result = await Mediator.Send(new GetAppointmentsQuery(startDate, endDate, therapistId));
+        return OkResponse(result);
+    }
+
+    [HttpGet("conflicts")]
+    public async Task<ActionResult<ApiResponse<ConflictCheckResult>>> CheckConflicts(
+        [FromQuery] Guid therapistId,
+        [FromQuery] DateTimeOffset startTime,
+        [FromQuery] DateTimeOffset endTime,
+        [FromQuery] Guid? excludeAppointmentId = null)
+    {
+        var result = await Mediator.Send(new CheckConflictsQuery(therapistId, startTime, endTime, excludeAppointmentId));
+        return OkResponse(result);
+    }
+
+    [HttpGet("availability")]
+    public async Task<ActionResult<ApiResponse<TherapistAvailabilityResult>>> GetAvailability(
+        [FromQuery] Guid therapistId,
+        [FromQuery] DateOnly date)
+    {
+        var result = await Mediator.Send(new GetTherapistAvailabilityQuery(therapistId, date));
         return OkResponse(result);
     }
 

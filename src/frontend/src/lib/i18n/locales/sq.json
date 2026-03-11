@@ -44,7 +44,17 @@
     "appointmentMoved": "Takimi u zhvendos me sukses",
     "appointmentResized": "Kohezgjatja e takimit u perditesua",
     "conflictError": "Nuk mund te zhvendoset ketu — koha eshte e zene",
-    "dragToMove": "Terhiqni per te riplanifikuar"
+    "dragToMove": "Terhiqni per te riplanifikuar",
+    "quickCreate": "Takim i Ri",
+    "patientName": "Emri i Pacientit",
+    "patientPhone": "Telefoni",
+    "treatmentType": "Lloji i Trajtimit",
+    "duration": "Kohezgjatja (min)",
+    "notes": "Shenime",
+    "color": "Ngjyra",
+    "appointmentCreated": "Takimi u krijua",
+    "patientNameRequired": "Emri i pacientit kerkohet",
+    "treatmentTypeRequired": "Lloji i trajtimit kerkohet"
   },
   "patients": {
     "empty": "Nuk ka paciente",

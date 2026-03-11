@@ -10,6 +10,7 @@ interface DroppableTimeSlotProps {
   isHourStart: boolean
   hasConflict: boolean
   isActiveTarget: boolean
+  onSlotClick?: (data: TimeSlotData) => void
 }
 
 export function DroppableTimeSlot({
@@ -20,6 +21,7 @@ export function DroppableTimeSlot({
   isHourStart,
   hasConflict,
   isActiveTarget,
+  onSlotClick,
 }: DroppableTimeSlotProps) {
   const slotData: TimeSlotData = { therapistId, timeSlot, dayDate }
 
@@ -38,8 +40,10 @@ export function DroppableTimeSlot({
         isOver && hasConflict && 'bg-red-100',
         isActiveTarget && !hasConflict && !isOver && 'bg-green-50',
         isActiveTarget && hasConflict && !isOver && 'bg-red-50',
+        !isOver && !isActiveTarget && onSlotClick && 'cursor-pointer hover:bg-gray-50',
       )}
       style={{ height: `${pixelsPerSlot}px` }}
+      onClick={() => onSlotClick?.(slotData)}
     />
   )
 }

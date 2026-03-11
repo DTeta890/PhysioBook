@@ -44,7 +44,17 @@
     "appointmentMoved": "Appointment moved successfully",
     "appointmentResized": "Appointment duration updated",
     "conflictError": "Cannot move here — time slot is occupied",
-    "dragToMove": "Drag to reschedule"
+    "dragToMove": "Drag to reschedule",
+    "quickCreate": "New Appointment",
+    "patientName": "Patient Name",
+    "patientPhone": "Phone",
+    "treatmentType": "Treatment Type",
+    "duration": "Duration (min)",
+    "notes": "Notes",
+    "color": "Color",
+    "appointmentCreated": "Appointment created",
+    "patientNameRequired": "Patient name is required",
+    "treatmentTypeRequired": "Treatment type is required"
   },
   "patients": {
     "empty": "No patients",
