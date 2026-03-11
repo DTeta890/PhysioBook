@@ -1,72 +1,80 @@
-import { startOfWeek, addDays, format, parseISO } from 'date-fns'
-import type { CalendarConfig } from '../types'
+import { format, addDays, startOfWeek, parseISO, addMinutes } from 'date-fns'
+import type { Appointment, CalendarConfig } from '../types'
 
-/**
- * Get array of dates for the current week (Mon-Sat, 6 days for clinic).
- */
-export function getWeekDays(date: Date): Date[] {
-  const monday = startOfWeek(date, { weekStartsOn: 1 })
-  return Array.from({ length: 6 }, (_, i) => addDays(monday, i))
+export const DEFAULT_CONFIG: CalendarConfig = {
+  startHour: 8,
+  endHour: 20,
+  slotDurationMinutes: 15,
+  pixelsPerSlot: 20,
 }
 
 /**
- * Get time slots for a day based on config.
- * Returns array like ["08:00", "08:15", "08:30", ...]
+ * Get all days of the week for a given date (Monday-based week)
  */
-export function getTimeSlots(config: CalendarConfig): string[] {
+export function getWeekDays(date: Date): Date[] {
+  const weekStart = startOfWeek(date, { weekStartsOn: 1 })
+  return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+}
+
+/**
+ * Get time slots for a day based on config
+ * Returns array of time strings like ["08:00", "08:15", "08:30", ...]
+ */
+export function getTimeSlots(config: CalendarConfig = DEFAULT_CONFIG): string[] {
   const slots: string[] = []
-  const totalMinutes =
-    (config.endHour - config.startHour) * 60
+  const totalMinutes = (config.endHour - config.startHour) * 60
   const slotCount = totalMinutes / config.slotDurationMinutes
 
-  for (let i = 0; i <= slotCount; i++) {
+  for (let i = 0; i < slotCount; i++) {
     const minutesFromStart = i * config.slotDurationMinutes
     const hour = config.startHour + Math.floor(minutesFromStart / 60)
     const minute = minutesFromStart % 60
-    slots.push(
-      `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
-    )
+    slots.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
   }
 
   return slots
 }
 
 /**
- * Calculate position of an appointment in the grid.
- * Returns top offset in px and height in px.
- * Each slot is 20px tall.
+ * Get the top position and height of an appointment block in pixels
  */
 export function getAppointmentPosition(
-  startTime: string,
-  endTime: string,
-  config: CalendarConfig,
+  appointment: Appointment,
+  config: CalendarConfig = DEFAULT_CONFIG,
 ): { top: number; height: number } {
-  const start = parseISO(startTime)
-  const end = parseISO(endTime)
+  const start = parseISO(appointment.startTime)
+  const end = parseISO(appointment.endTime)
 
-  const startMinutes = start.getHours() * 60 + start.getMinutes()
-  const endMinutes = end.getHours() * 60 + end.getMinutes()
-
+  const startMinutesFromDayStart = start.getHours() * 60 + start.getMinutes()
+  const endMinutesFromDayStart = end.getHours() * 60 + end.getMinutes()
   const configStartMinutes = config.startHour * 60
-  const pixelsPerSlot = 20
-  const pixelsPerMinute = pixelsPerSlot / config.slotDurationMinutes
 
-  const top = (startMinutes - configStartMinutes) * pixelsPerMinute
-  const height = (endMinutes - startMinutes) * pixelsPerMinute
+  const startOffset = startMinutesFromDayStart - configStartMinutes
+  const duration = endMinutesFromDayStart - startMinutesFromDayStart
 
-  return { top, height: Math.max(height, pixelsPerSlot) }
+  const pixelsPerMinute = config.pixelsPerSlot / config.slotDurationMinutes
+  const top = startOffset * pixelsPerMinute
+  const height = duration * pixelsPerMinute
+
+  return { top, height }
 }
 
 /**
- * Format time for display, e.g. "09:30"
+ * Format a time string for display (e.g., "09:00" or "9:00 AM")
  */
-export function formatTime(date: Date | string): string {
-  const d = typeof date === 'string' ? parseISO(date) : date
-  return format(d, 'HH:mm')
+export function formatTime(timeStr: string): string {
+  return timeStr
 }
 
 /**
- * Check if two time ranges overlap.
+ * Format hour for the time gutter (e.g., 9 -> "09:00")
+ */
+export function formatHour(hour: number): string {
+  return `${String(hour).padStart(2, '0')}:00`
+}
+
+/**
+ * Check if two time ranges overlap
  */
 export function hasOverlap(
   start1: string,
@@ -80,4 +88,72 @@ export function hasOverlap(
   const e2 = parseISO(end2).getTime()
 
   return s1 < e2 && s2 < e1
+}
+
+/**
+ * Given a time slot string (e.g., "09:00") and a date string (e.g., "2026-03-11"),
+ * returns a full ISO datetime string
+ */
+export function buildDateTimeFromSlot(dayDate: string, timeSlot: string): string {
+  return `${dayDate}T${timeSlot}:00`
+}
+
+/**
+ * Calculate the new end time given a start time and duration in minutes
+ */
+export function calculateEndTime(startTime: string, durationMinutes: number): string {
+  const start = parseISO(startTime)
+  const end = addMinutes(start, durationMinutes)
+  return format(end, "yyyy-MM-dd'T'HH:mm:ss")
+}
+
+/**
+ * Get the total height of the calendar grid in pixels
+ */
+export function getGridHeight(config: CalendarConfig = DEFAULT_CONFIG): number {
+  const totalSlots = ((config.endHour - config.startHour) * 60) / config.slotDurationMinutes
+  return totalSlots * config.pixelsPerSlot
+}
+
+/**
+ * Snap a pixel offset to the nearest slot boundary
+ */
+export function snapToSlot(pixelOffset: number, config: CalendarConfig = DEFAULT_CONFIG): number {
+  return Math.round(pixelOffset / config.pixelsPerSlot) * config.pixelsPerSlot
+}
+
+/**
+ * Convert a pixel offset from the top of the grid to a time string
+ */
+export function pixelOffsetToTime(
+  pixelOffset: number,
+  config: CalendarConfig = DEFAULT_CONFIG,
+): string {
+  const pixelsPerMinute = config.pixelsPerSlot / config.slotDurationMinutes
+  const minutesFromStart = Math.round(pixelOffset / pixelsPerMinute)
+  const totalMinutes = config.startHour * 60 + minutesFromStart
+  const hour = Math.floor(totalMinutes / 60)
+  const minute = totalMinutes % 60
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+
+/**
+ * Check if an appointment would conflict with existing appointments for a therapist.
+ * Excludes the appointment being moved (by id).
+ */
+export function checkConflict(
+  appointments: Appointment[],
+  therapistId: string,
+  startTime: string,
+  endTime: string,
+  excludeAppointmentId?: string,
+): boolean {
+  return appointments
+    .filter(
+      (apt) =>
+        apt.therapistId === therapistId &&
+        apt.id !== excludeAppointmentId &&
+        apt.status !== 'cancelled',
+    )
+    .some((apt) => hasOverlap(startTime, endTime, apt.startTime, apt.endTime))
 }

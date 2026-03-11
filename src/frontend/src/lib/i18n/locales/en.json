@@ -41,16 +41,10 @@
     "empty": "No appointments",
     "emptyDescription": "No appointments scheduled. Click an empty slot to create one.",
     "today": "Today",
-    "weekView": "Week",
-    "dayView": "Day",
-    "monthView": "Month",
-    "noTherapists": "No active therapists found",
-    "monday": "Mon",
-    "tuesday": "Tue",
-    "wednesday": "Wed",
-    "thursday": "Thu",
-    "friday": "Fri",
-    "saturday": "Sat"
+    "appointmentMoved": "Appointment moved successfully",
+    "appointmentResized": "Appointment duration updated",
+    "conflictError": "Cannot move here — time slot is occupied",
+    "dragToMove": "Drag to reschedule"
   },
   "patients": {
     "empty": "No patients",

@@ -99,6 +99,7 @@ public sealed class UpdateAppointmentCommandHandler : IRequestHandler<UpdateAppo
             entity.CancellationReason,
             entity.IsWalkIn,
             entity.Color,
+            entity.RecurringRuleId,
             entity.CreatedAt);
     }
 }

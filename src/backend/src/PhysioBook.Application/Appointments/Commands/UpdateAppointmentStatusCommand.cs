@@ -75,6 +75,7 @@ public sealed class UpdateAppointmentStatusCommandHandler : IRequestHandler<Upda
             entity.CancellationReason,
             entity.IsWalkIn,
             entity.Color,
+            entity.RecurringRuleId,
             entity.CreatedAt);
     }
 }

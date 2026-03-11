@@ -1,67 +1,91 @@
 import { useMemo } from 'react'
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/shared/components/Button'
-import { useCalendarStore } from '../hooks/useCalendarStore'
 import { CalendarWeekView } from './CalendarWeekView'
+import { useCalendarStore } from '../hooks/useCalendarStore'
+import { useAppointments, useMoveAppointment, useResizeAppointment } from '../hooks/useAppointments'
 import { getWeekDays } from '../utils/calendar-utils'
-import { getMockAppointments, MOCK_THERAPISTS } from '../utils/mock-data'
-import type { CalendarConfig } from '../types'
-
-const DEFAULT_CONFIG: CalendarConfig = {
-  startHour: 8,
-  endHour: 20,
-  slotDurationMinutes: 15,
-}
+import { mockTherapists } from '../utils/mock-data'
+import { Toast } from '@/shared/components/Toast'
+import { cn } from '@/shared/utils/cn'
+import { LoadingSpinner } from '@/shared/components/LoadingSpinner'
 
 export function CalendarPage() {
   const { t } = useTranslation()
-  const { currentDate, goToPrev, goToNext, goToToday } = useCalendarStore()
+  const { currentDate, selectedDayIndex, setSelectedDayIndex, goToToday, goForward, goBack } =
+    useCalendarStore()
 
   const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate])
-  const weekStart = weekDays[0]
-  const weekEnd = weekDays[weekDays.length - 1]
 
-  // Mock data - will be replaced with TanStack Query hooks when API is ready
-  const appointments = useMemo(() => getMockAppointments(), [])
-  const therapists = MOCK_THERAPISTS
+  const startDate = format(weekDays[0], 'yyyy-MM-dd')
+  const endDate = format(weekDays[6], 'yyyy-MM-dd')
+
+  const { data: appointments, isLoading } = useAppointments(startDate, endDate)
+  const moveAppointment = useMoveAppointment()
+  const resizeAppointment = useResizeAppointment()
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header / Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToPrev}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={goToNext}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={goToToday}>
-            {t('calendar.today')}
-          </Button>
+          <Calendar className="h-5 w-5 text-green-600" />
+          <h1 className="text-lg font-bold text-gray-900">{t('nav.calendar')}</h1>
         </div>
 
-        <h2 className="text-lg font-semibold text-gray-900">
-          {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
-        </h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={goBack}
+            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-        <div className="flex items-center gap-1">
-          <Button variant="secondary" size="sm">
-            {t('calendar.weekView')}
-          </Button>
+          <button
+            onClick={goToToday}
+            className={cn(
+              'rounded-lg px-3 py-1.5 text-xs font-medium',
+              'border border-gray-300 text-gray-700 hover:bg-gray-50',
+            )}
+          >
+            {t('calendar.today', 'Today')}
+          </button>
+
+          <button
+            onClick={goForward}
+            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          <span className="ml-2 text-sm font-medium text-gray-600">
+            {format(weekDays[0], 'MMM d')} - {format(weekDays[6], 'MMM d, yyyy')}
+          </span>
         </div>
       </div>
 
-      {/* Calendar body */}
+      {/* Calendar content */}
       <div className="flex-1 overflow-hidden">
-        <CalendarWeekView
-          therapists={therapists}
-          appointments={appointments}
-          config={DEFAULT_CONFIG}
-        />
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <CalendarWeekView
+            weekDays={weekDays}
+            therapists={mockTherapists}
+            appointments={appointments ?? []}
+            selectedDayIndex={selectedDayIndex}
+            onDaySelect={setSelectedDayIndex}
+            onAppointmentMove={(params) => moveAppointment.mutate(params)}
+            onAppointmentResize={(params) => resizeAppointment.mutate(params)}
+          />
+        )}
       </div>
+
+      {/* Toast notifications */}
+      <Toast />
     </div>
   )
 }

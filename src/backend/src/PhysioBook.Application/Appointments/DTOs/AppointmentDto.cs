@@ -16,4 +16,5 @@ public sealed record AppointmentDto(
     string? CancellationReason,
     bool IsWalkIn,
     string? Color,
+    Guid? RecurringRuleId,
     DateTimeOffset CreatedAt);

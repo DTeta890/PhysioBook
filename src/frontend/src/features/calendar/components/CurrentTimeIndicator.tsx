@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import { DEFAULT_CONFIG } from '../utils/calendar-utils'
 import type { CalendarConfig } from '../types'
 
 interface CurrentTimeIndicatorProps {
-  config: CalendarConfig
+  config?: CalendarConfig
 }
 
-export function CurrentTimeIndicator({ config }: CurrentTimeIndicatorProps) {
+export function CurrentTimeIndicator({ config = DEFAULT_CONFIG }: CurrentTimeIndicatorProps) {
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -14,16 +15,14 @@ export function CurrentTimeIndicator({ config }: CurrentTimeIndicatorProps) {
   }, [])
 
   const currentMinutes = now.getHours() * 60 + now.getMinutes()
-  const configStartMinutes = config.startHour * 60
-  const configEndMinutes = config.endHour * 60
+  const startMinutes = config.startHour * 60
+  const endMinutes = config.endHour * 60
 
-  if (currentMinutes < configStartMinutes || currentMinutes > configEndMinutes) {
-    return null
-  }
+  // Don't render if current time is outside calendar range
+  if (currentMinutes < startMinutes || currentMinutes > endMinutes) return null
 
-  const pixelsPerSlot = 20
-  const pixelsPerMinute = pixelsPerSlot / config.slotDurationMinutes
-  const top = (currentMinutes - configStartMinutes) * pixelsPerMinute
+  const pixelsPerMinute = config.pixelsPerSlot / config.slotDurationMinutes
+  const top = (currentMinutes - startMinutes) * pixelsPerMinute
 
   return (
     <div
@@ -31,8 +30,8 @@ export function CurrentTimeIndicator({ config }: CurrentTimeIndicatorProps) {
       style={{ top: `${top}px` }}
     >
       <div className="flex items-center">
-        <div className="h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-red-500" />
-        <div className="h-0.5 w-full bg-red-500" />
+        <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+        <div className="h-0.5 flex-1 bg-red-500" />
       </div>
     </div>
   )

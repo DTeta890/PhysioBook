@@ -50,6 +50,7 @@ public sealed class GetAppointmentsQueryHandler : IRequestHandler<GetAppointment
                 a.CancellationReason,
                 a.IsWalkIn,
                 a.Color,
+                a.RecurringRuleId,
                 a.CreatedAt))
             .ToListAsync(cancellationToken);
     }

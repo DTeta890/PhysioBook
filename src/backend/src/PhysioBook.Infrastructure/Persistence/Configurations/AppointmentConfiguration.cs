@@ -65,6 +65,9 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .HasColumnName("color")
             .HasMaxLength(7);
 
+        builder.Property(a => a.RecurringRuleId)
+            .HasColumnName("recurring_rule_id");
+
         builder.Property(a => a.CreatedAt)
             .HasColumnName("created_at")
             .HasDefaultValueSql("NOW()");
@@ -88,6 +91,10 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .HasDatabaseName("idx_appointments_tenant_status")
             .HasFilter("status NOT IN ('completed', 'cancelled')");
 
+        builder.HasIndex(a => a.RecurringRuleId)
+            .HasDatabaseName("idx_appointments_recurring_rule")
+            .HasFilter("recurring_rule_id IS NOT NULL");
+
         // Foreign key to Tenant
         builder.HasOne(a => a.Tenant)
             .WithMany()
@@ -105,5 +112,11 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .WithMany()
             .HasForeignKey(a => a.TreatmentTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Foreign key to RecurringRule
+        builder.HasOne(a => a.RecurringRule)
+            .WithMany(r => r.Appointments)
+            .HasForeignKey(a => a.RecurringRuleId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

@@ -1,223 +1,386 @@
-import { useMemo, useState } from 'react'
-import { format, isToday } from 'date-fns'
+import { useState, useCallback, useRef } from 'react'
+import { format, isSameDay } from 'date-fns'
+import { DndContext, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
+import type { DragStartEvent, DragEndEvent, Active } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/utils/cn'
-import type { Therapist } from '@/features/therapists/types'
-import type { Appointment, CalendarConfig } from '../types'
-import { getWeekDays, getTimeSlots } from '../utils/calendar-utils'
 import { CalendarDayColumn } from './CalendarDayColumn'
-import { CurrentTimeIndicator } from './CurrentTimeIndicator'
-import { useCalendarStore } from '../hooks/useCalendarStore'
+import { CalendarDragOverlay } from './CalendarDragOverlay'
+import {
+  getTimeSlots,
+  getGridHeight,
+  buildDateTimeFromSlot,
+  calculateEndTime,
+  checkConflict,
+  DEFAULT_CONFIG,
+} from '../utils/calendar-utils'
+import { useToastStore } from '@/shared/stores/useToastStore'
+import type {
+  Appointment,
+  Therapist,
+  DraggableAppointmentData,
+  TimeSlotData,
+  MoveAppointmentParams,
+  ResizeAppointmentParams,
+} from '../types'
 
 interface CalendarWeekViewProps {
+  weekDays: Date[]
   therapists: Therapist[]
   appointments: Appointment[]
-  config: CalendarConfig
+  selectedDayIndex: number
+  onDaySelect: (index: number) => void
+  onAppointmentMove: (params: MoveAppointmentParams) => void
+  onAppointmentResize: (params: ResizeAppointmentParams) => void
 }
 
-const DAY_KEYS = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-] as const
-
 export function CalendarWeekView({
+  weekDays,
   therapists,
   appointments,
-  config,
+  selectedDayIndex,
+  onDaySelect,
+  onAppointmentMove,
+  onAppointmentResize,
 }: CalendarWeekViewProps) {
   const { t } = useTranslation()
-  const { currentDate, selectedDayIndex, setSelectedDayIndex } =
-    useCalendarStore()
+  const config = DEFAULT_CONFIG
+  const timeSlots = getTimeSlots(config)
+  const gridHeight = getGridHeight(config)
+  const today = new Date()
 
-  const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate])
-  const timeSlots = useMemo(() => getTimeSlots(config), [config])
+  const [activeItem, setActiveItem] = useState<Active | null>(null)
+  const [activeAppointmentData, setActiveAppointmentData] =
+    useState<DraggableAppointmentData | null>(null)
+
+  // Resize state
+  const [resizingAppointmentId, setResizingAppointmentId] = useState<string | null>(null)
+  const resizeStartHeightRef = useRef(0)
+  const resizingAppointmentRef = useRef<Appointment | null>(null)
+
+  const showToast = useToastStore((s) => s.show)
+
+  // DnD sensors
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: { distance: 5 },
+  })
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: { delay: 200, tolerance: 5 },
+  })
+  const sensors = useSensors(pointerSensor, touchSensor)
+
+  // Filter hours for time gutter (only show on-the-hour labels)
+  const hourLabels = timeSlots.filter((s) => s.endsWith(':00'))
+
+  // On mobile, show single selected day; on desktop show all weekdays
   const selectedDay = weekDays[selectedDayIndex]
 
-  // For mobile: therapist selector
-  const [selectedTherapistIndex, setSelectedTherapistIndex] = useState(0)
-  const activeTherapists = therapists.filter((th) => th.isActive)
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const data = event.active.data.current as DraggableAppointmentData | undefined
+    setActiveItem(event.active)
+    setActiveAppointmentData(data ?? null)
+  }, [])
 
-  const pixelsPerSlot = 20
-  const totalHeight = timeSlots.length * pixelsPerSlot
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveItem(null)
+      setActiveAppointmentData(null)
 
-  const showCurrentTimeLine = selectedDay && isToday(selectedDay)
+      const { active, over } = event
+      if (!over) return
+
+      const dragData = active.data.current as DraggableAppointmentData | undefined
+      const dropData = over.data.current as TimeSlotData | undefined
+      if (!dragData || !dropData) return
+
+      const newStartTime = buildDateTimeFromSlot(dropData.dayDate, dropData.timeSlot)
+      const newEndTime = calculateEndTime(newStartTime, dragData.durationMinutes)
+
+      // Check for conflicts
+      const hasConflict = checkConflict(
+        appointments,
+        dropData.therapistId,
+        newStartTime,
+        newEndTime,
+        dragData.appointmentId,
+      )
+
+      if (hasConflict) {
+        showToast(t('calendar.conflictError'), 'error')
+        return
+      }
+
+      // Check if anything actually changed
+      if (
+        dragData.startTime === newStartTime &&
+        dragData.therapistId === dropData.therapistId
+      ) {
+        return
+      }
+
+      onAppointmentMove({
+        appointmentId: dragData.appointmentId,
+        newTherapistId: dropData.therapistId,
+        newStartTime,
+        newEndTime,
+      })
+
+      showToast(t('calendar.appointmentMoved'), 'success')
+    },
+    [appointments, onAppointmentMove, showToast, t],
+  )
+
+  const handleDragCancel = useCallback(() => {
+    setActiveItem(null)
+    setActiveAppointmentData(null)
+  }, [])
+
+  // Resize handlers
+  const handleResizeStart = useCallback(
+    (appointmentId: string) => {
+      const appointment = appointments.find((a) => a.id === appointmentId)
+      if (!appointment) return
+      setResizingAppointmentId(appointmentId)
+      resizingAppointmentRef.current = appointment
+      const pixelsPerMinute = config.pixelsPerSlot / config.slotDurationMinutes
+      resizeStartHeightRef.current = appointment.durationMinutes * pixelsPerMinute
+    },
+    [appointments, config],
+  )
+
+  const handleResizeMove = useCallback(
+    (deltaY: number) => {
+      if (!resizingAppointmentRef.current) return
+
+      const pixelsPerMinute = config.pixelsPerSlot / config.slotDurationMinutes
+      const newHeight = resizeStartHeightRef.current + deltaY
+      const newDuration = Math.round(newHeight / pixelsPerMinute)
+      // Snap to slot duration increments, minimum 1 slot
+      const snappedDuration = Math.max(
+        config.slotDurationMinutes,
+        Math.round(newDuration / config.slotDurationMinutes) * config.slotDurationMinutes,
+      )
+
+      const appointment = resizingAppointmentRef.current
+      const newEndTime = calculateEndTime(appointment.startTime, snappedDuration)
+
+      // Don't exceed calendar end
+      const endHour = parseInt(newEndTime.slice(11, 13), 10)
+      if (endHour > config.endHour) return
+
+      // Check for conflicts
+      const hasConflict = checkConflict(
+        appointments,
+        appointment.therapistId,
+        appointment.startTime,
+        newEndTime,
+        appointment.id,
+      )
+
+      if (hasConflict) return
+
+      // Live preview via optimistic update
+      onAppointmentResize({
+        appointmentId: appointment.id,
+        newEndTime,
+        newDurationMinutes: snappedDuration,
+      })
+    },
+    [appointments, config, onAppointmentResize],
+  )
+
+  const handleResizeEnd = useCallback(() => {
+    if (resizingAppointmentRef.current) {
+      showToast(t('calendar.appointmentResized'), 'success')
+    }
+    setResizingAppointmentId(null)
+    resizingAppointmentRef.current = null
+  }, [showToast, t])
 
   return (
-    <div className="flex flex-col">
-      {/* Day tabs */}
-      <div className="flex border-b border-gray-200 bg-white">
-        {weekDays.map((day, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => setSelectedDayIndex(i)}
-            className={cn(
-              'flex-1 px-2 py-2 text-center text-sm font-medium transition-colors',
-              i === selectedDayIndex
-                ? 'border-b-2 border-primary-600 text-primary-700 bg-primary-50'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
-              isToday(day) && i !== selectedDayIndex && 'text-primary-600',
-            )}
-          >
-            <div className="text-xs">
-              {t(`calendar.${DAY_KEYS[i]}`)}
-            </div>
-            <div
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
+      <div className="flex flex-col">
+        {/* Day tabs (mobile) */}
+        <div className="flex gap-1 overflow-x-auto border-b border-gray-200 bg-white px-2 py-1 md:hidden">
+          {weekDays.map((day, index) => (
+            <button
+              key={day.toISOString()}
+              onClick={() => onDaySelect(index)}
               className={cn(
-                'text-sm',
-                isToday(day) &&
-                  'inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-white',
+                'shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                index === selectedDayIndex
+                  ? 'bg-green-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100',
+                isSameDay(day, today) && index !== selectedDayIndex && 'text-green-600',
               )}
             >
-              {format(day, 'd')}
-            </div>
-          </button>
-        ))}
-      </div>
+              <div>{format(day, 'EEE')}</div>
+              <div className="text-sm font-bold">{format(day, 'd')}</div>
+            </button>
+          ))}
+        </div>
 
-      {/* Mobile therapist selector */}
-      <div className="flex overflow-x-auto border-b border-gray-200 bg-gray-50 lg:hidden">
-        {activeTherapists.map((therapist, i) => (
-          <button
-            key={therapist.id}
-            type="button"
-            onClick={() => setSelectedTherapistIndex(i)}
-            className={cn(
-              'shrink-0 px-3 py-1.5 text-xs font-medium transition-colors',
-              i === selectedTherapistIndex
-                ? 'border-b-2 border-primary-600 text-primary-700 bg-white'
-                : 'text-gray-600 hover:text-gray-900',
-            )}
-          >
-            <div className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2 w-2 rounded-full"
-                style={{
-                  backgroundColor: therapist.color ?? '#3B82F6',
-                }}
-              />
-              {therapist.firstName} {therapist.lastName[0]}.
-            </div>
-          </button>
-        ))}
-      </div>
+        {/* Calendar grid */}
+        <div className="overflow-auto">
+          {/* Desktop: all days; Mobile: selected day only */}
+          {/* Desktop view */}
+          <div className="hidden md:block">
+            {weekDays.map((day, dayIndex) => {
+              const dayStr = format(day, 'yyyy-MM-dd')
+              const dayAppointments = appointments.filter((a) =>
+                a.startTime.startsWith(dayStr),
+              )
+              const isCurrentDay = isSameDay(day, today)
 
-      {/* Calendar grid */}
-      <div className="overflow-auto">
-        <div className="flex min-w-0">
-          {/* Time gutter */}
-          <div className="sticky left-0 z-10 w-14 shrink-0 bg-white border-r border-gray-200">
-            {timeSlots.map((slot, i) => (
-              <div
-                key={slot}
-                className="relative pr-2 text-right"
-                style={{ height: `${pixelsPerSlot}px` }}
-              >
-                {i % (60 / config.slotDurationMinutes) === 0 && (
-                  <span className="absolute -top-2 right-2 text-xs text-gray-500">
-                    {slot}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+              if (dayAppointments.length === 0 && !isCurrentDay && dayIndex > 4) {
+                // Skip empty weekend days on desktop
+                return null
+              }
 
-          {/* Desktop: all therapist columns */}
-          <div className="hidden flex-1 lg:flex relative">
-            {/* Therapist headers */}
-            {activeTherapists.length > 0 ? (
-              <div className="flex flex-1">
-                {activeTherapists.map((therapist) => (
+              return (
+                <div key={day.toISOString()} className="mb-4">
+                  {/* Day header */}
                   <div
-                    key={therapist.id}
-                    className="relative min-w-[180px] flex-1"
+                    className={cn(
+                      'sticky top-0 z-30 border-b border-gray-200 bg-white px-4 py-2',
+                      isCurrentDay && 'bg-green-50',
+                    )}
                   >
-                    {/* Header */}
-                    <div className="sticky top-0 z-10 border-b border-r border-gray-200 bg-white px-2 py-1.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span
-                          className="inline-block h-2.5 w-2.5 rounded-full"
-                          style={{
-                            backgroundColor:
-                              therapist.color ?? '#3B82F6',
-                          }}
-                        />
-                        <span className="text-sm font-medium text-gray-900">
-                          {therapist.firstName} {therapist.lastName}
-                        </span>
-                      </div>
-                      {therapist.specialization && (
-                        <div className="truncate text-xs text-gray-500">
-                          {therapist.specialization}
-                        </div>
-                      )}
-                    </div>
-                    {/* Day column */}
-                    <div className="relative">
-                      <CalendarDayColumn
-                        therapist={therapist}
-                        day={selectedDay}
-                        appointments={appointments}
-                        config={config}
-                      />
-                      {showCurrentTimeLine && (
-                        <CurrentTimeIndicator config={config} />
-                      )}
-                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {format(day, 'EEEE, MMM d')}
+                    </span>
+                    {isCurrentDay && (
+                      <span className="ml-2 rounded bg-green-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                        Today
+                      </span>
+                    )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-1 items-center justify-center py-20 text-gray-500">
-                {t('calendar.noTherapists')}
-              </div>
-            )}
+
+                  {/* Therapist columns for this day */}
+                  <div className="flex">
+                    {/* Time gutter */}
+                    <div
+                      className="sticky left-0 z-20 w-14 shrink-0 border-r border-gray-200 bg-white"
+                    >
+                      {/* Spacer for column header */}
+                      <div className="h-[42px] border-b border-gray-200" />
+                      <div className="relative" style={{ height: `${gridHeight}px` }}>
+                        {hourLabels.map((slot) => {
+                          const hour = parseInt(slot.split(':')[0], 10)
+                          const minutesFromStart = (hour - config.startHour) * 60
+                          const pixelsPerMinute =
+                            config.pixelsPerSlot / config.slotDurationMinutes
+                          const top = minutesFromStart * pixelsPerMinute
+
+                          return (
+                            <div
+                              key={slot}
+                              className="absolute right-1 text-[10px] text-gray-400"
+                              style={{ top: `${top - 6}px` }}
+                            >
+                              {slot}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Therapist columns */}
+                    {therapists.map((therapist) => {
+                      const columnAppointments = dayAppointments.filter(
+                        (a) => a.therapistId === therapist.id,
+                      )
+
+                      return (
+                        <CalendarDayColumn
+                          key={`${therapist.id}-${dayStr}`}
+                          therapist={therapist}
+                          dayDate={day}
+                          appointments={columnAppointments}
+                          allAppointments={appointments}
+                          isToday={isCurrentDay}
+                          activeAppointmentData={activeAppointmentData}
+                          onResizeStart={handleResizeStart}
+                          onResizeMove={handleResizeMove}
+                          onResizeEnd={handleResizeEnd}
+                          resizingAppointmentId={resizingAppointmentId}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
           </div>
 
-          {/* Mobile: single therapist column */}
-          <div className="flex flex-1 lg:hidden">
-            {activeTherapists.length > 0 && activeTherapists[selectedTherapistIndex] ? (
-              <div className="relative min-w-0 flex-1">
-                <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-2 py-1.5 text-center">
-                  <div className="flex items-center justify-center gap-1.5">
-                    <span
-                      className="inline-block h-2.5 w-2.5 rounded-full"
-                      style={{
-                        backgroundColor:
-                          activeTherapists[selectedTherapistIndex].color ??
-                          '#3B82F6',
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      {activeTherapists[selectedTherapistIndex].firstName}{' '}
-                      {activeTherapists[selectedTherapistIndex].lastName}
-                    </span>
+          {/* Mobile view: single day */}
+          <div className="md:hidden">
+            {selectedDay && (
+              <div>
+                <div className="flex">
+                  {/* Time gutter */}
+                  <div className="sticky left-0 z-20 w-14 shrink-0 border-r border-gray-200 bg-white">
+                    <div className="h-[42px] border-b border-gray-200" />
+                    <div className="relative" style={{ height: `${gridHeight}px` }}>
+                      {hourLabels.map((slot) => {
+                        const hour = parseInt(slot.split(':')[0], 10)
+                        const minutesFromStart = (hour - config.startHour) * 60
+                        const pixelsPerMinute =
+                          config.pixelsPerSlot / config.slotDurationMinutes
+                        const top = minutesFromStart * pixelsPerMinute
+
+                        return (
+                          <div
+                            key={slot}
+                            className="absolute right-1 text-[10px] text-gray-400"
+                            style={{ top: `${top - 6}px` }}
+                          >
+                            {slot}
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
+
+                  {/* Therapist columns for selected day */}
+                  {therapists.map((therapist) => {
+                    const dayStr = format(selectedDay, 'yyyy-MM-dd')
+                    const columnAppointments = appointments.filter(
+                      (a) =>
+                        a.therapistId === therapist.id &&
+                        a.startTime.startsWith(dayStr),
+                    )
+
+                    return (
+                      <CalendarDayColumn
+                        key={`${therapist.id}-${dayStr}`}
+                        therapist={therapist}
+                        dayDate={selectedDay}
+                        appointments={columnAppointments}
+                        allAppointments={appointments}
+                        isToday={isSameDay(selectedDay, today)}
+                        activeAppointmentData={activeAppointmentData}
+                        onResizeStart={handleResizeStart}
+                        onResizeMove={handleResizeMove}
+                        onResizeEnd={handleResizeEnd}
+                        resizingAppointmentId={resizingAppointmentId}
+                      />
+                    )
+                  })}
                 </div>
-                <div className="relative" style={{ height: `${totalHeight}px` }}>
-                  <CalendarDayColumn
-                    therapist={activeTherapists[selectedTherapistIndex]}
-                    day={selectedDay}
-                    appointments={appointments}
-                    config={config}
-                  />
-                  {showCurrentTimeLine && (
-                    <CurrentTimeIndicator config={config} />
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-1 items-center justify-center py-20 text-gray-500">
-                {t('calendar.noTherapists')}
               </div>
             )}
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Drag overlay */}
+      <CalendarDragOverlay activeItem={activeItem} appointments={appointments} />
+    </DndContext>
   )
 }

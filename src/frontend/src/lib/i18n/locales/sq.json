@@ -41,16 +41,10 @@
     "empty": "Nuk ka takime",
     "emptyDescription": "Nuk ka takime te planifikuara. Klikoni nje slot bosh per te krijuar nje te re.",
     "today": "Sot",
-    "weekView": "Java",
-    "dayView": "Dita",
-    "monthView": "Muaji",
-    "noTherapists": "Nuk u gjeten terapiste aktive",
-    "monday": "Hen",
-    "tuesday": "Mar",
-    "wednesday": "Mer",
-    "thursday": "Enj",
-    "friday": "Pre",
-    "saturday": "Sht"
+    "appointmentMoved": "Takimi u zhvendos me sukses",
+    "appointmentResized": "Kohezgjatja e takimit u perditesua",
+    "conflictError": "Nuk mund te zhvendoset ketu — koha eshte e zene",
+    "dragToMove": "Terhiqni per te riplanifikuar"
   },
   "patients": {
     "empty": "Nuk ka paciente",

@@ -47,6 +47,7 @@ public sealed class GetAppointmentQueryHandler : IRequestHandler<GetAppointmentQ
             entity.CancellationReason,
             entity.IsWalkIn,
             entity.Color,
+            entity.RecurringRuleId,
             entity.CreatedAt);
     }
 }

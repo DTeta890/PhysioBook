@@ -25,6 +25,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<TreatmentType> TreatmentTypes => Set<TreatmentType>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<RecurringRule> RecurringRules => Set<RecurringRule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

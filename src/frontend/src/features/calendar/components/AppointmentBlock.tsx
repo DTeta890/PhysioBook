@@ -1,81 +1,84 @@
 import { cn } from '@/shared/utils/cn'
-import type { Appointment, CalendarConfig } from '../types'
-import { getAppointmentPosition, formatTime } from '../utils/calendar-utils'
+import { Clock, User } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import type { Appointment } from '../types'
 
 interface AppointmentBlockProps {
   appointment: Appointment
-  therapistColor: string | null
-  config: CalendarConfig
+  top: number
+  height: number
+  isDragging?: boolean
+  isOverlay?: boolean
 }
 
-const statusColors: Record<Appointment['status'], string> = {
-  scheduled: 'bg-blue-500',
-  confirmed: 'bg-green-500',
-  in_progress: 'bg-yellow-500',
-  completed: 'bg-gray-400',
-  cancelled: 'bg-red-500',
-  no_show: 'bg-orange-500',
+const statusClasses: Record<string, string> = {
+  scheduled: 'border-l-4',
+  confirmed: 'border-l-4',
+  'in-progress': 'border-l-4 ring-2 ring-offset-1',
+  completed: 'border-l-4 opacity-60',
+  cancelled: 'border-l-4 opacity-40 line-through',
+  'no-show': 'border-l-4 opacity-50',
 }
 
 export function AppointmentBlock({
   appointment,
-  therapistColor,
-  config,
+  top,
+  height,
+  isDragging = false,
+  isOverlay = false,
 }: AppointmentBlockProps) {
-  const { top, height } = getAppointmentPosition(
-    appointment.startTime,
-    appointment.endTime,
-    config,
-  )
-
-  const bgColor =
-    appointment.color ?? therapistColor ?? '#3B82F6'
-
-  const isCancelledOrNoShow =
-    appointment.status === 'cancelled' || appointment.status === 'no_show'
-
-  const isCompact = height < 60
+  const startFormatted = format(parseISO(appointment.startTime), 'HH:mm')
+  const endFormatted = format(parseISO(appointment.endTime), 'HH:mm')
+  const isCompact = height < 40
+  const isTiny = height < 28
 
   return (
     <div
       className={cn(
-        'absolute left-0.5 right-0.5 overflow-hidden rounded px-1.5 py-0.5 text-xs cursor-pointer transition-shadow hover:shadow-md border border-white/20',
-        isCancelledOrNoShow && 'opacity-50',
+        'absolute left-0.5 right-0.5 overflow-hidden rounded-md px-1.5 py-0.5',
+        'cursor-grab select-none transition-shadow',
+        statusClasses[appointment.status] ?? 'border-l-4',
+        isDragging && 'opacity-30',
+        isOverlay && 'shadow-xl ring-2 ring-green-400 scale-[1.02]',
+        !isDragging && !isOverlay && 'hover:shadow-md hover:z-10',
       )}
       style={{
-        top: `${top}px`,
-        height: `${height}px`,
-        backgroundColor: bgColor,
-        color: '#fff',
+        top: isOverlay ? 0 : `${top}px`,
+        height: isOverlay ? '100%' : `${Math.max(height - 1, 16)}px`,
+        backgroundColor: `${appointment.color}20`,
+        borderLeftColor: appointment.color,
+        position: isOverlay ? 'relative' : 'absolute',
       }}
-      title={`${appointment.patientName} - ${appointment.treatmentTypeName} (${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)})`}
     >
-      <div className="flex items-center gap-1">
-        <span
-          className={cn(
-            'inline-block h-1.5 w-1.5 shrink-0 rounded-full',
-            statusColors[appointment.status],
-          )}
-        />
-        <span
-          className={cn(
-            'truncate font-semibold leading-tight',
-            isCancelledOrNoShow && 'line-through',
-          )}
-        >
-          {appointment.patientName}
-        </span>
-      </div>
-      {!isCompact && (
-        <>
-          <div className="truncate leading-tight text-white/90">
-            {appointment.treatmentTypeName}
+      {isTiny ? (
+        <div className="flex items-center gap-1 truncate text-[10px] font-medium text-gray-800">
+          <span>{startFormatted}</span>
+          <span className="truncate">{appointment.patientName}</span>
+        </div>
+      ) : isCompact ? (
+        <div className="flex flex-col gap-0">
+          <div className="flex items-center gap-1 truncate text-[11px] font-semibold text-gray-900">
+            <span>{appointment.patientName}</span>
           </div>
-          <div className="truncate leading-tight text-white/80">
-            {formatTime(appointment.startTime)} -{' '}
-            {formatTime(appointment.endTime)}
+          <div className="flex items-center gap-1 text-[10px] text-gray-600">
+            <Clock className="h-2.5 w-2.5" />
+            <span>{startFormatted} - {endFormatted}</span>
           </div>
-        </>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1 truncate text-xs font-semibold text-gray-900">
+            <User className="h-3 w-3 shrink-0" />
+            <span className="truncate">{appointment.patientName}</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-gray-600">
+            <Clock className="h-2.5 w-2.5 shrink-0" />
+            <span>{startFormatted} - {endFormatted}</span>
+          </div>
+          <div className="truncate text-[10px] text-gray-500">
+            {appointment.treatmentType}
+          </div>
+        </div>
       )}
     </div>
   )

@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<TreatmentType> TreatmentTypes { get; }
     DbSet<Appointment> Appointments { get; }
+    DbSet<RecurringRule> RecurringRules { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
