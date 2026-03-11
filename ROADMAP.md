@@ -20,8 +20,8 @@
 | T-05 | JWT auth system (register, login, refresh) | ✅ | T-04 | feature/T-05-auth-backend |
 | T-06 | Vite React TS project + TailwindCSS + Router | ✅ | T-00 | feature/T-06-frontend-scaffold |
 | T-07 | Frontend auth (login page, token management) | ✅ | T-05, T-06 | feature/T-07-auth-frontend |
-| T-08 | CI/CD pipeline (GitHub Actions + Docker build) | ⬜ | T-01, T-03, T-06 | feature/T-08-cicd |
-| T-09 | Tenant provisioning system | ⬜ | T-04 | feature/T-09-tenant-provision |
+| T-08 | CI/CD pipeline (GitHub Actions + Docker build) | ✅ | T-01, T-03, T-06 | feature/T-08-cicd |
+| T-09 | Tenant provisioning system | ✅ | T-04 | feature/T-09-tenant-provision |
 
 ## Phase 1: Core Calendar (Weeks 5–10)
 
