@@ -4,7 +4,10 @@
       "Bash(dotnet build:*)",
       "Bash(dotnet test:*)",
       "Bash(mkdir:*)",
-      "Bash(dotnet add:*)"
+      "Bash(dotnet add:*)",
+      "Bash(npm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
