@@ -9,6 +9,7 @@
     "walkins": "Pa termin",
     "booking": "Rezervim Online",
     "therapists": "Terapistet",
+    "treatmentTypes": "Llojet e Trajtimit",
     "analytics": "Analitika",
     "settings": "Cilesimet"
   },
@@ -74,6 +75,22 @@
     "active": "Aktiv",
     "inactive": "Joaktiv",
     "deleteConfirm": "Jeni te sigurt qe doni te c'aktivizoni kete terapist?"
+  },
+  "treatmentTypes": {
+    "title": "Llojet e Trajtimit",
+    "add": "Shto Lloj Trajtimi",
+    "edit": "Ndrysho Llojin e Trajtimit",
+    "empty": "Nuk ka lloje trajtimi",
+    "emptyDescription": "Nuk ka lloje trajtimi te percaktuara ende. Shtoni llojin e pare te trajtimit per te filluar.",
+    "name": "Emri",
+    "description": "Pershkrimi",
+    "duration": "Kohezgjatja (minuta)",
+    "price": "Cmimi",
+    "color": "Ngjyra",
+    "active": "Aktiv",
+    "inactive": "Joaktiv",
+    "deleteConfirm": "Jeni te sigurt qe doni te c'aktivizoni kete lloj trajtimi?",
+    "minutes": "min"
   },
   "settings": {
     "empty": "Cilesimet",

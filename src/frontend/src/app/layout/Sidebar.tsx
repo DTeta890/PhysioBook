@@ -4,6 +4,7 @@ import {
   Calendar,
   Users,
   UserCheck,
+  Stethoscope,
   ClipboardList,
   BarChart3,
   Settings,
@@ -19,6 +20,7 @@ interface SidebarProps {
 const navItems = [
   { to: '/calendar' as const, icon: Calendar, labelKey: 'nav.calendar' },
   { to: '/therapists' as const, icon: UserCheck, labelKey: 'nav.therapists' },
+  { to: '/treatment-types' as const, icon: Stethoscope, labelKey: 'nav.treatmentTypes' },
   { to: '/patients' as const, icon: Users, labelKey: 'nav.patients' },
   { to: '/walk-ins' as const, icon: ClipboardList, labelKey: 'nav.walkins' },
   { to: '/analytics' as const, icon: BarChart3, labelKey: 'nav.analytics' },

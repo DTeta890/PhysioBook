@@ -14,6 +14,7 @@ import { BookingPage } from '@/features/booking/components/BookingPage'
 import { AnalyticsPage } from '@/features/analytics/components/AnalyticsPage'
 import { SettingsPage } from '@/features/auth/components/SettingsPage'
 import { TherapistsPage } from '@/features/therapists/components/TherapistsPage'
+import { TreatmentTypesPage } from '@/features/treatment-types/components/TreatmentTypesPage'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 
 function isAuthenticated() {
@@ -99,6 +100,12 @@ const therapistsRoute = createRoute({
   component: TherapistsPage,
 })
 
+const treatmentTypesRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/treatment-types',
+  component: TreatmentTypesPage,
+})
+
 const settingsRoute = createRoute({
   getParentRoute: () => protectedLayoutRoute,
   path: '/settings',
@@ -116,6 +123,7 @@ const routeTree = rootRoute.addChildren([
     patientDetailRoute,
     walkInsRoute,
     therapistsRoute,
+    treatmentTypesRoute,
     analyticsRoute,
     settingsRoute,
   ]),

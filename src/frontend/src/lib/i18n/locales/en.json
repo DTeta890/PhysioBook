@@ -9,6 +9,7 @@
     "walkins": "Walk-ins",
     "booking": "Online Booking",
     "therapists": "Therapists",
+    "treatmentTypes": "Treatment Types",
     "analytics": "Analytics",
     "settings": "Settings"
   },
@@ -74,6 +75,22 @@
     "active": "Active",
     "inactive": "Inactive",
     "deleteConfirm": "Are you sure you want to deactivate this therapist?"
+  },
+  "treatmentTypes": {
+    "title": "Treatment Types",
+    "add": "Add Treatment Type",
+    "edit": "Edit Treatment Type",
+    "empty": "No treatment types",
+    "emptyDescription": "No treatment types defined yet. Add your first treatment type to get started.",
+    "name": "Name",
+    "description": "Description",
+    "duration": "Duration (minutes)",
+    "price": "Price",
+    "color": "Color",
+    "active": "Active",
+    "inactive": "Inactive",
+    "deleteConfirm": "Are you sure you want to deactivate this treatment type?",
+    "minutes": "min"
   },
   "settings": {
     "empty": "Settings",
