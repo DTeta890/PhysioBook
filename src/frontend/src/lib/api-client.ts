@@ -1,6 +1,6 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api/v1'
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   data: T
   errors: string[]
   meta: Record<string, unknown>
@@ -11,6 +11,7 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
 }
 
 let accessToken: string | null = null
+let refreshPromise: Promise<string | null> | null = null
 
 export function setAccessToken(token: string | null) {
   accessToken = token
@@ -20,10 +21,44 @@ export function getAccessToken() {
   return accessToken
 }
 
-async function refreshToken(): Promise<string | null> {
-  // TODO: implement refresh token rotation
-  // POST /api/v1/auth/refresh with the stored refresh token
-  return null
+async function tryRefreshToken(): Promise<string | null> {
+  // Avoid concurrent refresh calls
+  if (refreshPromise) return refreshPromise
+
+  refreshPromise = (async () => {
+    try {
+      // Import dynamically to avoid circular dependency
+      const { useAuth } = await import('@/features/auth/hooks/useAuth')
+      const state = useAuth.getState()
+      if (!state.refreshToken) return null
+
+      const response = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: state.refreshToken }),
+      })
+
+      if (!response.ok) {
+        state.logout()
+        return null
+      }
+
+      const result = (await response.json()) as ApiResponse<{
+        accessToken: string
+        refreshToken: string
+        user: unknown
+      }>
+
+      state.setTokens(result.data.accessToken, result.data.refreshToken)
+      return result.data.accessToken
+    } catch {
+      return null
+    } finally {
+      refreshPromise = null
+    }
+  })()
+
+  return refreshPromise
 }
 
 async function request<T>(
@@ -53,7 +88,7 @@ async function request<T>(
 
   // Auto-refresh on 401
   if (response.status === 401 && accessToken) {
-    const newToken = await refreshToken()
+    const newToken = await tryRefreshToken()
     if (newToken) {
       accessToken = newToken
       headers['Authorization'] = `Bearer ${newToken}`
@@ -69,10 +104,26 @@ async function request<T>(
     const error = await response.json().catch(() => ({
       errors: [`HTTP ${response.status}: ${response.statusText}`],
     }))
-    throw new Error(error.errors?.[0] ?? 'An unknown error occurred')
+    throw new ApiError(
+      error.errors?.[0] ?? 'An unknown error occurred',
+      response.status,
+      error.errors ?? [],
+    )
   }
 
   return response.json() as Promise<ApiResponse<T>>
+}
+
+export class ApiError extends Error {
+  status: number
+  errors: string[]
+
+  constructor(message: string, status: number, errors: string[]) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.errors = errors
+  }
 }
 
 export const apiClient = {

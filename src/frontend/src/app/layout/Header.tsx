@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Menu, Bell, LogOut } from 'lucide-react'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { useLogout } from '@/features/auth/hooks/useLogout'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -8,7 +9,8 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { t, i18n } = useTranslation()
-  const { user, logout } = useAuth()
+  const user = useAuth((s) => s.user)
+  const handleLogout = useLogout()
 
   const toggleLanguage = () => {
     const next = i18n.language === 'sq' ? 'en' : 'sq'
@@ -43,16 +45,16 @@ export function Header({ onMenuClick }: HeaderProps) {
         {user && (
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-700">
-              {user.name.charAt(0).toUpperCase()}
+              {user.firstName.charAt(0).toUpperCase()}
             </div>
             <span className="hidden text-sm font-medium text-gray-700 md:block">
-              {user.name}
+              {user.firstName} {user.lastName}
             </span>
           </div>
         )}
 
         <button
-          onClick={logout}
+          onClick={() => void handleLogout()}
           className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
           title={t('auth.logout')}
         >

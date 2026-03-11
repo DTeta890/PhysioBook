@@ -1,4 +1,6 @@
 export { LoginPage } from './components/LoginPage'
 export { SettingsPage } from './components/SettingsPage'
 export { useAuth } from './hooks/useAuth'
-export type { User, LoginRequest, LoginResponse, AuthTokens } from './types'
+export { useLogout } from './hooks/useLogout'
+export { authApi } from './api/auth-api'
+export type { User, LoginRequest, AuthResponse, AuthTokens, ChangePasswordRequest } from './types'

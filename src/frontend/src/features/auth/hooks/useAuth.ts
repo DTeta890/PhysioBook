@@ -7,11 +7,13 @@ interface AuthState {
   user: User | null
   accessToken: string | null
   refreshToken: string | null
+  tenantId: string | null
   isAuthenticated: boolean
   login: (tokens: { accessToken: string; refreshToken: string }, user: User) => void
   logout: () => void
   setUser: (user: User) => void
   setTokens: (accessToken: string, refreshToken: string) => void
+  setTenantId: (tenantId: string) => void
 }
 
 export const useAuth = create<AuthState>()(
@@ -20,6 +22,7 @@ export const useAuth = create<AuthState>()(
       user: null,
       accessToken: null,
       refreshToken: null,
+      tenantId: null,
       isAuthenticated: false,
 
       login: (tokens, user) => {
@@ -28,6 +31,7 @@ export const useAuth = create<AuthState>()(
           user,
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
+          tenantId: user.tenantId,
           isAuthenticated: true,
         })
       },
@@ -48,9 +52,24 @@ export const useAuth = create<AuthState>()(
         setAccessToken(accessToken)
         set({ accessToken, refreshToken })
       },
+
+      setTenantId: (tenantId) => set({ tenantId }),
     }),
     {
       name: 'physiobook-auth',
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        tenantId: state.tenantId,
+        isAuthenticated: state.isAuthenticated,
+      }),
     },
   ),
 )
+
+// Rehydrate access token on app start
+const state = useAuth.getState()
+if (state.accessToken) {
+  setAccessToken(state.accessToken)
+}
