@@ -24,4 +24,5 @@ public class Appointment : BaseEntity
     public TreatmentType TreatmentType { get; set; } = null!;
     public Tenant Tenant { get; set; } = null!;
     public RecurringRule? RecurringRule { get; set; }
+    public TreatmentNote? TreatmentNote { get; set; }
 }

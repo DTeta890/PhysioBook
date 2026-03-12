@@ -27,6 +27,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<RecurringRule> RecurringRules => Set<RecurringRule>();
     public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<TreatmentNote> TreatmentNotes => Set<TreatmentNote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
