@@ -13,6 +13,10 @@ public interface IApplicationDbContext
     DbSet<RecurringRule> RecurringRules { get; }
     DbSet<Patient> Patients { get; }
     DbSet<TreatmentNote> TreatmentNotes { get; }
+    DbSet<TreatmentPackage> TreatmentPackages { get; }
+    DbSet<PatientPackage> PatientPackages { get; }
+    DbSet<PatientDocument> PatientDocuments { get; }
+    DbSet<WalkInEntry> WalkInEntries { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -28,6 +28,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RecurringRule> RecurringRules => Set<RecurringRule>();
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<TreatmentNote> TreatmentNotes => Set<TreatmentNote>();
+    public DbSet<TreatmentPackage> TreatmentPackages => Set<TreatmentPackage>();
+    public DbSet<PatientPackage> PatientPackages => Set<PatientPackage>();
+    public DbSet<PatientDocument> PatientDocuments => Set<PatientDocument>();
+    public DbSet<WalkInEntry> WalkInEntries => Set<WalkInEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

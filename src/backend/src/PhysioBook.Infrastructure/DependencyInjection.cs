@@ -5,6 +5,7 @@ using PhysioBook.Application.Common.Interfaces;
 using PhysioBook.Infrastructure.Auth;
 using PhysioBook.Infrastructure.Persistence;
 using PhysioBook.Infrastructure.Services;
+using PhysioBook.Infrastructure.Storage;
 
 namespace PhysioBook.Infrastructure;
 
@@ -39,6 +40,9 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
 
         services.AddHttpContextAccessor();
+
+        // Document storage (MinIO)
+        services.AddDocumentStorage(configuration);
 
         return services;
     }

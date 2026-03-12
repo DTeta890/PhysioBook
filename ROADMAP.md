@@ -46,9 +46,9 @@
 | T-21 | Patient management UI (list, search, profile) | ✅ | T-20, T-07 | feature/T-21-patients-ui |
 | T-22 | Patient search with fuzzy matching (pg_trgm) | ✅ | T-20 | feature/T-22-patient-search |
 | T-23 | Treatment notes (SOAP format) backend + UI | ✅ | T-12, T-20 | feature/T-23-treatment-notes |
-| T-24 | Treatment packages (sessions tracking) | ⬜ | T-20 | feature/T-24-packages |
-| T-25 | Patient document uploads (MinIO) | ⬜ | T-20 | feature/T-25-documents |
-| T-26 | Walk-in queue backend API | ⬜ | T-20 | feature/T-26-walkin-api |
+| T-24 | Treatment packages (sessions tracking) | ✅ | T-20 | feature/T-24-packages |
+| T-25 | Patient document uploads (MinIO) | ✅ | T-20 | feature/T-25-documents |
+| T-26 | Walk-in queue backend API | ✅ | T-20 | feature/T-26-walkin-api |
 | T-27 | Walk-in queue UI (check-in, wait time, convert) | ⬜ | T-26, T-14 | feature/T-27-walkin-ui |
 | T-28 | Patient history timeline view | ⬜ | T-23, T-24 | feature/T-28-patient-history |
 
