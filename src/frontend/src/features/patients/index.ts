@@ -1,3 +1,5 @@
 export { PatientsPage } from './components/PatientsPage'
 export { PatientDetailPage } from './components/PatientDetailPage'
-export { PatientFormModal } from './components/PatientFormModal'
+export { PatientHistoryTimeline } from './components/PatientHistoryTimeline'
+export { TreatmentNoteCard } from './components/TreatmentNoteCard'
+export { PatientPackageCard } from './components/PatientPackageCard'

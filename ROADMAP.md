@@ -49,8 +49,8 @@
 | T-24 | Treatment packages (sessions tracking) | ✅ | T-20 | feature/T-24-packages |
 | T-25 | Patient document uploads (MinIO) | ✅ | T-20 | feature/T-25-documents |
 | T-26 | Walk-in queue backend API | ✅ | T-20 | feature/T-26-walkin-api |
-| T-27 | Walk-in queue UI (check-in, wait time, convert) | ⬜ | T-26, T-14 | feature/T-27-walkin-ui |
-| T-28 | Patient history timeline view | ⬜ | T-23, T-24 | feature/T-28-patient-history |
+| T-27 | Walk-in queue UI (check-in, wait time, convert) | ✅ | T-26, T-14 | feature/T-27-walkin-ui |
+| T-28 | Patient history timeline view | ✅ | T-23, T-24 | feature/T-28-patient-history |
 
 ## Phase 3: Notifications (Weeks 15–16)
 
