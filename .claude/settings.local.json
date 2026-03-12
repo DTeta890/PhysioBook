@@ -9,7 +9,14 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(npx tsc:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(W24=.claude/worktrees/agent-a77d38a7)",
+      "Read(//c/Users/MrEight/Desktop/Physio/.claude/worktrees/agent-aca15a5a/$W24/src/backend/src/PhysioBook.Domain/Entities/**)",
+      "Read(//c/Users/MrEight/Desktop/Physio/.claude/worktrees/agent-aca15a5a/$W24/src/backend/src/PhysioBook.Application/**)",
+      "Read(//c/Users/MrEight/Desktop/Physio/.claude/worktrees/agent-aca15a5a/$W24/src/backend/src/PhysioBook.Api/Controllers/**)",
+      "Read(//c/Users/MrEight/Desktop/Physio/.claude/worktrees/agent-aca15a5a/$W24/src/backend/src/PhysioBook.Infrastructure/Persistence/Configurations/**)",
+      "Read(//c/Users/MrEight/Desktop/Physio/.claude/worktrees/agent-aca15a5a/$W24/db/migrations/**)",
+      "Read(//c/Users/MrEight/Desktop/Physio/.claude/worktrees/agent-aca15a5a/$W24/src/backend/tests/PhysioBook.UnitTests/**)"
     ]
   }
 }
