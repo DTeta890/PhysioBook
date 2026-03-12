@@ -20,6 +20,7 @@ public class Appointment : BaseEntity
 
     // Navigation
     public User Therapist { get; set; } = null!;
+    public Patient? Patient { get; set; }
     public TreatmentType TreatmentType { get; set; } = null!;
     public Tenant Tenant { get; set; } = null!;
     public RecurringRule? RecurringRule { get; set; }

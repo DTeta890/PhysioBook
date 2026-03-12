@@ -42,7 +42,7 @@
 
 | ID | Task | Status | Dependencies | Worktree |
 |----|------|--------|--------------|----------|
-| T-20 | Patient CRUD (backend API) | ⬜ | T-04 | feature/T-20-patients-api |
+| T-20 | Patient CRUD (backend API) | ✅ | T-04 | feature/T-20-patients-api |
 | T-21 | Patient management UI (list, search, profile) | ⬜ | T-20, T-07 | feature/T-21-patients-ui |
 | T-22 | Patient search with fuzzy matching (pg_trgm) | ⬜ | T-20 | feature/T-22-patient-search |
 | T-23 | Treatment notes (SOAP format) backend + UI | ⬜ | T-12, T-20 | feature/T-23-treatment-notes |

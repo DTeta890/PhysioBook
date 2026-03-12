@@ -11,6 +11,7 @@ public interface IApplicationDbContext
     DbSet<TreatmentType> TreatmentTypes { get; }
     DbSet<Appointment> Appointments { get; }
     DbSet<RecurringRule> RecurringRules { get; }
+    DbSet<Patient> Patients { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
